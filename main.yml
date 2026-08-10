@@ -2,8 +2,7 @@ name: Auto Commit
 
 on:
   schedule:
-  - cron: '0 15 * * *'
-
+    - cron: '0 0 * * *'
   workflow_dispatch:
 
 jobs:
@@ -11,10 +10,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
+
+      - name: Random skip (~50% of days)
+        run: |
+          if (( RANDOM % 2 == 0 )); then
+            echo "Skipping today"
+            exit 0
+          fi
+
+      - name: Random delay (up to 23h)
+        run: sleep $((RANDOM % 82800))
+
       - name: Run commit script
         run: |
-           git config --global user.email "wsaavedr@gmail.com"
-           git config --global user.name "wsaavedr"
-           git commit --allow-empty -m "OOps a commit `date +'%Y-%m-%d %H:%M:%S'`" 
-           git push origin main
+          git config --global user.email "wsaavedr@gmail.com"
+          git config --global user.name "wsaavedr"
+          git commit --allow-empty -m "OOps a commit $(date +'%Y-%m-%d %H:%M:%S')"
+          git push origin main
